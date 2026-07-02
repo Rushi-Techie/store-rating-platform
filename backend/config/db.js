@@ -9,12 +9,12 @@ const STORE_HASH = bcrypt.hashSync('StorePass123!', 10);
 
 // In-memory mock database state
 const mockUsers = [
-  { id: 1, name: "System Administrator Account", email: "admin@platform.com", password: ADMIN_HASH, address: "123 Admin Headquarter, Cityville", role: "admin" },
-  { id: 2, name: "Regular Customer John Doe", email: "john@user.com", password: USER_HASH, address: "456 Customer Ave, Townsville", role: "user" },
-  { id: 3, name: "Regular Customer Jane Smith", email: "jane@user.com", password: USER_HASH, address: "789 Shopper Boulevard, Tech City", role: "user" },
-  { id: 4, name: "Gourmet Coffee Shop & Cafe", email: "gourmet@store.com", password: STORE_HASH, address: "123 Espresso Lane, Cityville", role: "store_owner" },
-  { id: 5, name: "Supermarket Grocery Store", email: "grocer@store.com", password: STORE_HASH, address: "456 Market St, Townsville", role: "store_owner" },
-  { id: 6, name: "Tech Electronics Outlet Store", email: "electronics@store.com", password: STORE_HASH, address: "789 Digital Way, Tech City", role: "store_owner" }
+  { id: 1, name: "System Administrator Account", email: "admin@platform.com", password_hash: ADMIN_HASH, address: "123 Admin Headquarter, Cityville", role: "admin" },
+  { id: 2, name: "Regular Customer John Doe", email: "john@user.com", password_hash: USER_HASH, address: "456 Customer Ave, Townsville", role: "user" },
+  { id: 3, name: "Regular Customer Jane Smith", email: "jane@user.com", password_hash: USER_HASH, address: "789 Shopper Boulevard, Tech City", role: "user" },
+  { id: 4, name: "Gourmet Coffee Shop & Cafe", email: "gourmet@store.com", password_hash: STORE_HASH, address: "123 Espresso Lane, Cityville", role: "store_owner" },
+  { id: 5, name: "Supermarket Grocery Store", email: "grocer@store.com", password_hash: STORE_HASH, address: "456 Market St, Townsville", role: "store_owner" },
+  { id: 6, name: "Tech Electronics Outlet Store", email: "electronics@store.com", password_hash: STORE_HASH, address: "789 Digital Way, Tech City", role: "store_owner" }
 ];
 
 const mockRatings = [
@@ -56,6 +56,13 @@ const mockQuery = async (text, params = []) => {
     const user = mockUsers.find(u => u.email === email);
     return { rows: user ? [user] : [] };
   }
+
+  // SELECT password_hash FROM users WHERE id = $1
+  if (queryLower.includes("select password_hash from users where id =")) {
+    const id = parseInt(params[0]);
+    const user = mockUsers.find(u => u.id === id);
+    return { rows: user ? [{ password_hash: user.password_hash }] : [] };
+  }
   
   // SELECT id, name, email, address, role FROM users WHERE id = $1
   if (queryLower.includes("select") && queryLower.includes("from users where id =")) {
@@ -96,18 +103,18 @@ const mockQuery = async (text, params = []) => {
   
   // INSERT INTO users
   if (queryLower.includes("insert into users")) {
-    const [name, email, password, address, role] = params;
+    const [name, email, passwordHash, address, role] = params;
     const newId = mockUsers.length + 1;
-    const newUser = { id: newId, name, email, password, address, role };
+    const newUser = { id: newId, name, email, password_hash: passwordHash, address, role };
     mockUsers.push(newUser);
     return { rows: [newUser] };
   }
 
-  // UPDATE users SET password
-  if (queryLower.includes("update users set password =")) {
-    const [password, id] = params;
+  // UPDATE users SET password_hash = $1 WHERE id = $2
+  if (queryLower.includes("update users set password_hash =")) {
+    const [passwordHash, id] = params;
     const user = mockUsers.find(u => u.id === parseInt(id));
-    if (user) user.password = password;
+    if (user) user.password_hash = passwordHash;
     return { rows: [user] };
   }
   

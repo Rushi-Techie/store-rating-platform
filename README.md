@@ -1,6 +1,6 @@
 # ShopRater - Store Rating & Review Platform
 
-* 🌐 **Live Link**: [https://store-rating-platform-httpswwwlinkedincominrushikesh-sonawane-3.vercel.app](https://store-rating-platform-httpswwwlinkedincominrushikesh-sonawane-3.vercel.app)
+* 🌐 **Live Link**: [https://store-rating-platform-jade.vercel.app](https://store-rating-platform-jade.vercel.app)
 
 ShopRater is a full-stack web application that allows customers to browse registered local stores, search by name/address, and submit 1-to-5 star reviews. The platform implements a single login system supporting role-based access control (RBAC) across three user groups: System Administrators, Normal Users (Customers), and Store Owners.
 
